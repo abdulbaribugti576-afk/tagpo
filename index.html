@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Live Football Broadcast PRO</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, Helvetica, sans-serif;}
 body{background:black;overflow:hidden;}
@@ -92,33 +90,47 @@ body{background:black;overflow:hidden;}
 /* SCORE SYSTEM */
 let score1=0;
 let score2=0;
-
 const score1El=document.getElementById("score1");
 const score2El=document.getElementById("score2");
+score1El.addEventListener("click",()=>{score1++;score1El.innerText=score1;});
+score2El.addEventListener("click",()=>{score2++;score2El.innerText=score2;});
 
-score1El.addEventListener("click",()=>{ score1++; score1El.innerText=score1; });
-score2El.addEventListener("click",()=>{ score2++; score2El.innerText=score2; });
-
-/* TIMER */
+/* TIMER SYSTEM */
 let seconds=0;
 let timerInterval;
-let clickStage=0;
-
+let clickStage=0; // 1=start,2=HT,3=resume,4=FT
+let savedSeconds=0;
 const timer=document.getElementById("timer");
 
-function setMinutes(min){ seconds=min*60; updateTimer(); }
+function setMinutes(min){
+  seconds=min*60;
+  updateTimer();
+}
 
 function timerControl(){
   clickStage++;
   if(clickStage==1){ startTimer(); }
-  else if(clickStage==2){ clearInterval(timerInterval); timer.innerText="HT"; }
-  else if(clickStage==3){ startTimer(); }
-  else if(clickStage==4){ clearInterval(timerInterval); timer.innerText="FT"; }
+  else if(clickStage==2){ // HT
+    clearInterval(timerInterval);
+    savedSeconds=seconds;
+    timer.innerText="HT";
+  }
+  else if(clickStage==3){ // resume from HT
+    seconds=savedSeconds;
+    startTimer();
+  }
+  else if(clickStage==4){ // FT
+    clearInterval(timerInterval);
+    timer.innerText="FT";
+  }
 }
 
 function startTimer(){
   clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{ seconds++; updateTimer(); },1000);
+  timerInterval=setInterval(()=>{
+    seconds++;
+    updateTimer();
+  },1000);
 }
 
 function updateTimer(){
@@ -156,6 +168,7 @@ function toggleSettings(){
 
 </body>
 </html>
+
 
 
 
