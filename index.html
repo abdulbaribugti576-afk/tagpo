@@ -30,7 +30,7 @@ body{
   z-index:-1;
 }
 
-/* SCORE BAR - smaller + side gaps */
+/* SCORE BAR */
 .scorebar{
   position:absolute;
   top:15px;
@@ -41,12 +41,11 @@ body{
   overflow:hidden;
   backdrop-filter: blur(6px);
   box-shadow:0 0 20px rgba(0,0,0,0.6);
-  transform:scale(0.5); /* 50% size */
+  transform:scale(0.5);
   transform-origin:left top;
   margin-right:20px;
 }
 
-/* TEAM A */
 .teamA{
   display:flex;
   align-items:center;
@@ -56,7 +55,6 @@ body{
   color:white;
 }
 
-/* TEAM B */
 .teamB{
   display:flex;
   align-items:center;
@@ -73,7 +71,6 @@ body{
   border-radius:50%;
 }
 
-/* SCORES clickable */
 .score{
   background:black;
   color:white;
@@ -83,7 +80,6 @@ body{
   cursor:pointer;
 }
 
-/* TIMER */
 .timer{
   background:#111;
   color:#00ffcc;
@@ -93,7 +89,6 @@ body{
   cursor:pointer;
 }
 
-/* LIVE badge */
 .live{
   position:absolute;
   top:15px;
@@ -112,7 +107,6 @@ body{
   100%{opacity:1}
 }
 
-/* GEAR */
 .gear{
   position:absolute;
   bottom:18px;
@@ -125,7 +119,6 @@ body{
   cursor:pointer;
 }
 
-/* SETTINGS PANEL portrait style professional */
 .settings{
   position:absolute;
   bottom:0;
@@ -139,7 +132,6 @@ body{
   overflow-y:auto;
 }
 
-/* scroll styling */
 .settings::-webkit-scrollbar{
   width:6px;
 }
@@ -148,7 +140,6 @@ body{
   border-radius:4px;
 }
 
-/* portrait form layout */
 .settings .field{
   display:flex;
   flex-direction:column;
@@ -167,7 +158,6 @@ body{
   border:none;
 }
 
-/* close button */
 .closeBtn{
   position:absolute;
   right:15px;
@@ -176,7 +166,6 @@ body{
   cursor:pointer;
 }
 
-/* MOBILE */
 @media (orientation:portrait){
   .gear{display:block;}
 }
@@ -191,9 +180,9 @@ body{
 
 <body>
 
-<video id="bgVideo" autoplay loop muted></video>
+<!-- gameplay video WITH AUDIO -->
+<video id="bgVideo" autoplay loop playsinline></video>
 
-<!-- SCORE BAR -->
 <div class="scorebar">
 
   <div class="teamA">
@@ -218,7 +207,6 @@ body{
 
 <div class="gear" onclick="toggleSettings()">⚙️</div>
 
-<!-- SETTINGS PANEL -->
 <div class="settings" id="settingsPanel">
 
 <div class="closeBtn" onclick="toggleSettings()">✖</div>
@@ -252,24 +240,24 @@ body{
 
 <div class="field">
 <label>Set Timer (minutes)</label>
-<input type="number" placeholder="مثلاً 45" onchange="setMinutes(this.value)">
+<input type="number" onchange="setMinutes(this.value)">
 </div>
 
 </div>
 
 <script>
 
-/* SCORE SYSTEM */
+/* SCORE */
 let score1=0;
 let score2=0;
 
 function addScore(team){
   if(team===1){
     score1++;
-    document.getElementById("score1").innerText=score1;
+    score1El.innerText=score1;
   }else{
     score2++;
-    document.getElementById("score2").innerText=score2;
+    score2El.innerText=score2;
   }
 }
 
@@ -286,16 +274,12 @@ function setMinutes(min){
 function timerControl(){
   clickStage++;
 
-  if(clickStage==1){
-    startTimer();
-  }
+  if(clickStage==1){ startTimer(); }
   else if(clickStage==2){
     clearInterval(timerInterval);
     timer.innerText="HT";
   }
-  else if(clickStage==3){
-    startTimer();
-  }
+  else if(clickStage==3){ startTimer(); }
   else if(clickStage==4){
     clearInterval(timerInterval);
     timer.innerText="FT";
@@ -316,9 +300,19 @@ function updateTimer(){
   timer.innerText=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
 }
 
-/* VIDEO */
+/* VIDEO WITH AUDIO ENABLE */
 function loadVideo(e){
-  bgVideo.src=URL.createObjectURL(e.target.files[0]);
+  const video = bgVideo;
+  video.src = URL.createObjectURL(e.target.files[0]);
+  video.muted = false;
+  video.volume = 1;
+
+  // mobile autoplay fix
+  video.play().catch(()=>{
+    document.body.addEventListener("click",()=>{
+      video.play();
+    },{once:true});
+  });
 }
 
 /* LOGOS */
@@ -336,7 +330,7 @@ function setName(name,team){
   else{ team2.innerText=name; }
 }
 
-/* SETTINGS TOGGLE */
+/* SETTINGS */
 function toggleSettings(){
   settingsPanel.style.display =
     settingsPanel.style.display=="block"?"none":"block";
@@ -346,6 +340,7 @@ function toggleSettings(){
 
 </body>
 </html>
+
 
 
 
