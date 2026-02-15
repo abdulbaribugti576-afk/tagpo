@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +30,7 @@ body{
   z-index:-1;
 }
 
-/* SCORE BAR - TOP LEFT */
+/* SCORE BAR - smaller + side gaps */
 .scorebar{
   position:absolute;
   top:15px;
@@ -40,6 +41,9 @@ body{
   overflow:hidden;
   backdrop-filter: blur(6px);
   box-shadow:0 0 20px rgba(0,0,0,0.6);
+  transform:scale(0.5); /* 50% size */
+  transform-origin:left top;
+  margin-right:20px;
 }
 
 /* TEAM A */
@@ -69,7 +73,7 @@ body{
   border-radius:50%;
 }
 
-/* SCORES */
+/* SCORES clickable */
 .score{
   background:black;
   color:white;
@@ -121,64 +125,65 @@ body{
   cursor:pointer;
 }
 
-/* SETTINGS PANEL */
+/* SETTINGS PANEL portrait style professional */
 .settings{
   position:absolute;
   bottom:0;
   left:0;
   width:100%;
-  background:rgba(0,0,0,.95);
+  max-height:80vh;
+  background:rgba(0,0,0,.97);
   color:white;
-  padding:15px;
+  padding:18px;
   display:none;
+  overflow-y:auto;
 }
 
+/* scroll styling */
+.settings::-webkit-scrollbar{
+  width:6px;
+}
+.settings::-webkit-scrollbar-thumb{
+  background:#555;
+  border-radius:4px;
+}
+
+/* portrait form layout */
+.settings .field{
+  display:flex;
+  flex-direction:column;
+  margin-bottom:14px;
+}
+
+.settings label{
+  margin-bottom:4px;
+  font-size:13px;
+  opacity:.8;
+}
+
+.settings input{
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+
+/* close button */
 .closeBtn{
   position:absolute;
   right:15px;
-  top:10px;
+  top:12px;
   font-size:18px;
   cursor:pointer;
 }
 
-.settings input{
-  margin:6px;
-}
-
-/* MOBILE RESPONSIVE */
-
-/* portrait */
+/* MOBILE */
 @media (orientation:portrait){
   .gear{display:block;}
 }
 
-/* landscape */
 @media (orientation:landscape){
   .gear{display:none;}
-
-  body{
-    height:100vh;
-    width:100vw;
-  }
-
-  .scorebar{
-    transform:scale(1.1);
-  }
-}
-
-/* small mobiles */
-@media (max-width:600px){
-  .score{
-    font-size:16px;
-  }
-  .timer{
-    font-size:14px;
-  }
-  .teamA img,
-  .teamB img{
-    width:22px;
-    height:22px;
-  }
+  body{height:100vh;width:100vw;}
 }
 
 </style>
@@ -186,7 +191,6 @@ body{
 
 <body>
 
-<!-- background video -->
 <video id="bgVideo" autoplay loop muted></video>
 
 <!-- SCORE BAR -->
@@ -197,11 +201,11 @@ body{
     <span id="team1">Team A</span>
   </div>
 
-  <div class="score" onclick="addScore(1)" id="score1">0</div>
+  <div class="score" id="score1" onclick="addScore(1)">0</div>
 
-  <div class="timer" onclick="timerControl()" id="timer">00:00</div>
+  <div class="timer" id="timer" onclick="timerControl()">00:00</div>
 
-  <div class="score" onclick="addScore(2)" id="score2">0</div>
+  <div class="score" id="score2" onclick="addScore(2)">0</div>
 
   <div class="teamB">
     <span id="team2">Team B</span>
@@ -212,7 +216,6 @@ body{
 
 <div class="live">LIVE</div>
 
-<!-- GEAR BUTTON -->
 <div class="gear" onclick="toggleSettings()">⚙️</div>
 
 <!-- SETTINGS PANEL -->
@@ -222,65 +225,77 @@ body{
 
 <h3>Broadcast Settings</h3>
 
-Gameplay Video:
+<div class="field">
+<label>Gameplay Video</label>
 <input type="file" accept="video/*" onchange="loadVideo(event)">
+</div>
 
-<br>
-
-Team A Logo:
+<div class="field">
+<label>Team A Logo</label>
 <input type="file" accept="image/*" onchange="loadLogo(event,1)">
+</div>
 
-Team B Logo:
+<div class="field">
+<label>Team B Logo</label>
 <input type="file" accept="image/*" onchange="loadLogo(event,2)">
+</div>
 
-<br>
-
-Team A Name:
+<div class="field">
+<label>Team A Name</label>
 <input type="text" onchange="setName(this.value,1)">
+</div>
 
-Team B Name:
+<div class="field">
+<label>Team B Name</label>
 <input type="text" onchange="setName(this.value,2)">
+</div>
+
+<div class="field">
+<label>Set Timer (minutes)</label>
+<input type="number" placeholder="مثلاً 45" onchange="setMinutes(this.value)">
+</div>
 
 </div>
 
 <script>
 
-/* SCORES */
+/* SCORE SYSTEM */
 let score1=0;
 let score2=0;
 
 function addScore(team){
-  if(team==1){
+  if(team===1){
     score1++;
-    score1El.innerText=score1;
+    document.getElementById("score1").innerText=score1;
   }else{
     score2++;
-    score2El.innerText=score2;
+    document.getElementById("score2").innerText=score2;
   }
 }
 
-/* TIMER SYSTEM */
+/* TIMER */
 let seconds=0;
 let timerInterval;
 let clickStage=0;
 
-function timerControl(){
+function setMinutes(min){
+  seconds=min*60;
+  updateTimer();
+}
 
+function timerControl(){
   clickStage++;
 
   if(clickStage==1){
     startTimer();
   }
-
   else if(clickStage==2){
     clearInterval(timerInterval);
     timer.innerText="HT";
   }
-
   else if(clickStage==3){
     startTimer();
   }
-
   else if(clickStage==4){
     clearInterval(timerInterval);
     timer.innerText="FT";
@@ -291,11 +306,14 @@ function startTimer(){
   clearInterval(timerInterval);
   timerInterval=setInterval(()=>{
     seconds++;
-    let m=Math.floor(seconds/60);
-    let s=seconds%60;
-    timer.innerText=
-      (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+    updateTimer();
   },1000);
+}
+
+function updateTimer(){
+  let m=Math.floor(seconds/60);
+  let s=seconds%60;
+  timer.innerText=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
 }
 
 /* VIDEO */
@@ -314,14 +332,11 @@ function loadLogo(e,team){
 
 /* TEAM NAMES */
 function setName(name,team){
-  if(team==1){
-    team1.innerText=name;
-  }else{
-    team2.innerText=name;
-  }
+  if(team==1){ team1.innerText=name; }
+  else{ team2.innerText=name; }
 }
 
-/* SETTINGS */
+/* SETTINGS TOGGLE */
 function toggleSettings(){
   settingsPanel.style.display =
     settingsPanel.style.display=="block"?"none":"block";
